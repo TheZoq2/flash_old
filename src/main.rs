@@ -11,6 +11,10 @@ use std::path::{Path, PathBuf};
 
 use glob::glob;
 
+mod tags;
+
+const WINDOW_NAME: &'static str = "main_window";
+
 fn get_images_in_directory(path: String) -> Vec<PathBuf>
 {
     let mut result = Vec::<PathBuf>::new();
@@ -36,26 +40,17 @@ fn main()
         return;
     }
     
-    let window = Window::new(WindowType::Toplevel);
-    window.set_title("Flash");
-    window.set_default_size(350, 70);
-    //let button = Button::new_with_label("Click me!");
-    let image = Image::new_from_file("media/test.png");
-    window.add(&image);
-    window.show_all();
+    let glade_src = include_str!("../resources/main_ui.glade");
+    let builder = gtk::Builder::new_from_string(glade_src);
 
-    window.
+    let window: Window = builder.get_object(&WINDOW_NAME).unwrap();
+
     window.connect_delete_event(|_, _| {
-        gtk::main_quit();
-        Inhibit(false)
+                gtk::main_quit();
+                Inhibit(false)
     });
 
-    let paths = get_images_in_directory(String::from("/tmp"));
-    
-    for path in paths
-    {
-        println!("{}", path.display());
-    }
+    window.show_all();
 
     gtk::main();
 }
